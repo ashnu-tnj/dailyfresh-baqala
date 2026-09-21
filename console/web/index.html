@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2e7d32">
+<title>DailyFresh Console</title>
+<!--BASE-->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="login" class="screen centred" hidden>
+  <form id="login-form" class="card narrow" autocomplete="off">
+    <h1 class="brand">DailyFresh</h1>
+    <p class="muted">Shop console</p>
+
+    <div id="step-phone">
+      <label for="phone">Shop WhatsApp number</label>
+      <input id="phone" name="phone" type="tel" inputmode="tel" placeholder="+971 50 000 0000" required>
+      <button id="send-code" class="primary" type="submit">Send me a code</button>
+    </div>
+
+    <div id="step-code" hidden>
+      <label for="code">6-digit code</label>
+      <p class="muted small">Sent on WhatsApp to <span id="code-target"></span>.</p>
+      <input id="code" name="code" type="text" inputmode="numeric" pattern="[0-9]*"
+             maxlength="6" autocomplete="one-time-code" placeholder="123456">
+      <button id="verify" class="primary" type="button">Sign in</button>
+      <button id="back-to-phone" class="link" type="button">Use a different number</button>
+    </div>
+
+    <p id="login-error" class="error" role="alert" hidden></p>
+  </form>
+</div>
+
+<div id="app" class="screen" hidden>
+  <header class="topbar">
+    <div>
+      <h1 id="shop-name">DailyFresh</h1>
+      <p id="shop-status" class="muted small"></p>
+    </div>
+    <button id="refresh" class="icon-btn" title="Refresh" aria-label="Refresh">&#8635;</button>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab is-active" role="tab" data-tab="orders">Orders <span id="badge-orders" class="badge" hidden></span></button>
+    <button class="tab" role="tab" data-tab="chats">Chats <span id="badge-chats" class="badge" hidden></span></button>
+    <button class="tab" role="tab" data-tab="prices">Prices</button>
+    <button class="tab" role="tab" data-tab="settings">Settings</button>
+  </nav>
+
+  <main>
+    <section id="panel-orders" class="panel">
+      <div class="filters">
+        <button class="chip is-active" data-filter="new">New</button>
+        <button class="chip" data-filter="accepted">Accepted</button>
+        <button class="chip" data-filter="delivered">Delivered</button>
+        <button class="chip" data-filter="all">All</button>
+      </div>
+      <div id="orders" class="list"></div>
+    </section>
+
+    <section id="panel-chats" class="panel" hidden>
+      <p class="muted small pad">Customers who asked to talk to a person. The bot is
+        silent with them until they tap <em>Back to ordering</em>.</p>
+      <div id="chats" class="list"></div>
+    </section>
+
+    <section id="panel-prices" class="panel" hidden>
+      <div class="pad">
+        <input id="search" type="search" placeholder="Search items" aria-label="Search items">
+        <p class="muted small">Prices sync from the sheet each morning. Changes you make here
+          hold until the next sync.</p>
+      </div>
+      <div id="prices" class="list"></div>
+    </section>
+
+    <section id="panel-settings" class="panel" hidden>
+      <div class="pad stack">
+        <div class="row between">
+          <div>
+            <strong>Accepting orders</strong>
+            <p class="muted small">Turn off to pause the bot without closing the shop.</p>
+          </div>
+          <label class="switch"><input id="accepting" type="checkbox"><span></span></label>
+        </div>
+
+        <label for="fee">Delivery fee</label>
+        <div class="row">
+          <input id="fee" type="number" step="0.5" min="0" inputmode="decimal">
+          <button id="save-fee" class="secondary" type="button">Save</button>
+        </div>
+
+        <label for="minorder">Minimum order</label>
+        <div class="row">
+          <input id="minorder" type="number" step="1" min="0" inputmode="decimal">
+          <button id="save-min" class="secondary" type="button">Save</button>
+        </div>
+
+        <hr>
+        <div class="row between">
+          <div>
+            <strong>Notifications</strong>
+            <p id="push-state" class="muted small">Checking…</p>
+          </div>
+          <button id="enable-push" class="secondary" type="button">Enable</button>
+        </div>
+        <button id="test-push" class="link" type="button">Send a test notification</button>
+
+        <hr>
+        <button id="logout" class="link danger" type="button">Sign out</button>
+        <p class="muted small" id="build-info"></p>
+      </div>
+    </section>
+  </main>
+
+  <p id="toast" class="toast" role="status" hidden></p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+Code,Group,Item,Pack,Unit,Category,Price (AED),Listed,Out of stock,Also called,Sort
+TOM250,TOM,Tomatoes,250 g,kg,Vegetables,2.50,yes,no,"tamatar,thakkali,tomato,tomatos",10
+TOM500,TOM,Tomatoes,500 g,kg,Vegetables,4.00,yes,no,"tamatar,thakkali,tomato,tomatos",20
+TOM1K,TOM,Tomatoes,1 kg,kg,Vegetables,6.50,yes,no,"tamatar,thakkali,tomato,tomatos",30
+ONI1K,ONI,Onions,1 kg,kg,Vegetables,4.00,yes,no,"pyaaz,vengayam,onion",40
+ONI2K,ONI,Onions,2 kg,kg,Vegetables,7.00,yes,no,"pyaaz,vengayam,onion",50
+POT1K,POT,Potatoes,1 kg,kg,Vegetables,4.50,yes,no,"aloo,urulai,potato",60
+POT2K,POT,Potatoes,2 kg,kg,Vegetables,8.00,yes,no,"aloo,urulai,potato",70
+CUC500,CUC,Cucumber,500 g,kg,Vegetables,3.00,yes,no,"kheera,vellarikka",80
+CUC1K,CUC,Cucumber,1 kg,kg,Vegetables,5.00,yes,no,"kheera,vellarikka",90
+CAR500,CAR,Carrots,500 g,kg,Vegetables,3.50,yes,no,"gajar,carrot",100
+CAR1K,CAR,Carrots,1 kg,kg,Vegetables,6.00,yes,no,"gajar,carrot",110
+CAP250,CAP,Capsicum,250 g,kg,Vegetables,3.00,yes,no,"shimla mirch,bell pepper,capsicum",120
+CAP500,CAP,Capsicum,500 g,kg,Vegetables,5.50,yes,no,"shimla mirch,bell pepper,capsicum",130
+OKR500,OKR,Okra,500 g,kg,Vegetables,5.00,yes,no,"bhindi,vendakkai,ladies finger",140
+BRJ500,BRJ,Brinjal,500 g,kg,Vegetables,4.00,yes,no,"baingan,kathirikai,eggplant",150
+BRJ1K,BRJ,Brinjal,1 kg,kg,Vegetables,7.00,yes,no,"baingan,kathirikai,eggplant",160
+CAUHD,CAU,Cauliflower,1 head,pc,Vegetables,6.00,yes,no,"gobi,phool gobi",170
+CABHD,CAB,Cabbage,1 head,pc,Vegetables,5.00,yes,no,"patta gobi,muttaikose",180
+CORBN,COR,Coriander,1 bunch,bunch,Herbs & Salad,2.00,yes,no,"kothmir,malli,dhania,cilantro",190
+MNTBN,MNT,Mint,1 bunch,bunch,Herbs & Salad,2.00,yes,no,"pudina,nana",200
+PARBN,PAR,Parsley,1 bunch,bunch,Herbs & Salad,2.50,yes,no,baqdounis,210
+LETHD,LET,Lettuce,1 head,pc,Herbs & Salad,5.50,yes,no,"salad leaves,iceberg",220
+SPOBN,SPO,Spring Onion,1 bunch,bunch,Herbs & Salad,3.00,yes,no,"hara pyaaz,scallion",230
+BAN1K,BAN,Bananas,1 kg,kg,Fruits,6.00,yes,no,"kela,vazhaipazham,banana",240
+APP1K,APP,Apples,1 kg,kg,Fruits,9.00,yes,no,"seb,apple",250
+ORA1K,ORA,Oranges,1 kg,kg,Fruits,8.00,yes,no,"santra,orange",260
+ORA2K,ORA,Oranges,2 kg,kg,Fruits,15.00,yes,no,"santra,orange",270
+MAN1K,MAN,Mangoes,1 kg,kg,Fruits,12.00,yes,no,"aam,mampazham,mango",280
+GRP500,GRP,Grapes,500 g,box,Fruits,9.50,yes,no,"angoor,grape",290
+STR250,STR,Strawberries,250 g,box,Fruits,11.00,yes,no,strawberry,300
+STRBX,STR,Strawberries,1 box,box,Fruits,18.00,yes,no,strawberry,310
+WATWH,WAT,Watermelon,1 whole,pc,Fruits,14.00,yes,no,"tarbooz,batikh",320
+ARBPK,ARB,Arabic Bread,1 pack,pack,Bakery,3.00,yes,no,"khubz,pita,roti",330
+WHBLF,WHB,White Bread,1 loaf,loaf,Bakery,4.50,yes,no,"bread,loaf",340
+CROP1,CRO,Croissant,1 pc,pc,Bakery,3.50,yes,no,croissants,350
+CROP4,CRO,Croissant,4 pc,pc,Bakery,12.00,yes,no,croissants,360
+VBSBX,VBS,Small Veggie Box,1 box,box,Veggie Box,35.00,yes,no,"veg box,vegetable box,small box",370
+VBFBX,VBF,Family Veggie Box,1 box,box,Veggie Box,65.00,yes,no,"family box,big box",380
+EGGP6,EGG,Eggs,6 pcs,tray,Groceries,6.00,yes,no,"anda,muttai,egg",390
+EGGP30,EGG,Eggs,30 pcs,tray,Groceries,24.00,yes,no,"anda,muttai,egg",400
+MLKL1,MLK,Milk,1 L,ltr,Groceries,6.50,yes,no,"doodh,paal,milk",410
+MLKL2,MLK,Milk,2 L,ltr,Groceries,12.00,yes,no,"doodh,paal,milk",420
+RIC5K,RIC,Basmati Rice,5 kg,kg,Groceries,32.00,yes,no,"chawal,arisi,rice",430
+SUG1K,SUG,Sugar,1 kg,kg,Groceries,5.00,yes,no,"cheeni,sakkarai",440

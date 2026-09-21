@@ -1,0 +1,17 @@
+# Secrets - never commit
+console/.env
+*.env.local
+*.key
+*.pem
+
+# Runtime / build output
+node_modules/
+console/data/
+*.log
+*.tmp
+
+# n8n workflow JSON is generated from the Python builders; keep the source of
+# truth, not the artefact.
+n8n/build/
+__pycache__/
+*.pyc

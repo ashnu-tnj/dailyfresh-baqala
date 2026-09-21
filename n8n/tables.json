@@ -1,0 +1,350 @@
+{
+ "df_config": [
+  {
+   "name": "config_key",
+   "type": "string"
+  },
+  {
+   "name": "value",
+   "type": "string"
+  },
+  {
+   "name": "notes",
+   "type": "string"
+  }
+ ],
+ "df_catalog": [
+  {
+   "name": "item_code",
+   "type": "string"
+  },
+  {
+   "name": "group_code",
+   "type": "string"
+  },
+  {
+   "name": "item_name",
+   "type": "string"
+  },
+  {
+   "name": "pack_label",
+   "type": "string"
+  },
+  {
+   "name": "unit",
+   "type": "string"
+  },
+  {
+   "name": "category",
+   "type": "string"
+  },
+  {
+   "name": "price",
+   "type": "number"
+  },
+  {
+   "name": "listed",
+   "type": "boolean"
+  },
+  {
+   "name": "out_of_stock",
+   "type": "boolean"
+  },
+  {
+   "name": "aliases",
+   "type": "string"
+  },
+  {
+   "name": "search_text",
+   "type": "string"
+  },
+  {
+   "name": "sort_order",
+   "type": "number"
+  },
+  {
+   "name": "updated_at",
+   "type": "date"
+  },
+  {
+   "name": "updated_by",
+   "type": "string"
+  }
+ ],
+ "df_customers": [
+  {
+   "name": "phone",
+   "type": "string"
+  },
+  {
+   "name": "name",
+   "type": "string"
+  },
+  {
+   "name": "wa_id",
+   "type": "string"
+  },
+  {
+   "name": "latitude",
+   "type": "number"
+  },
+  {
+   "name": "longitude",
+   "type": "number"
+  },
+  {
+   "name": "address_text",
+   "type": "string"
+  },
+  {
+   "name": "address_json",
+   "type": "string"
+  },
+  {
+   "name": "last_order_at",
+   "type": "date"
+  },
+  {
+   "name": "order_count",
+   "type": "number"
+  },
+  {
+   "name": "created_at",
+   "type": "date"
+  }
+ ],
+ "df_sessions": [
+  {
+   "name": "phone",
+   "type": "string"
+  },
+  {
+   "name": "wa_id",
+   "type": "string"
+  },
+  {
+   "name": "profile_name",
+   "type": "string"
+  },
+  {
+   "name": "customer_name",
+   "type": "string"
+  },
+  {
+   "name": "current_step",
+   "type": "string"
+  },
+  {
+   "name": "cart_json",
+   "type": "string"
+  },
+  {
+   "name": "pending_json",
+   "type": "string"
+  },
+  {
+   "name": "nav_json",
+   "type": "string"
+  },
+  {
+   "name": "latitude",
+   "type": "number"
+  },
+  {
+   "name": "longitude",
+   "type": "number"
+  },
+  {
+   "name": "address_text",
+   "type": "string"
+  },
+  {
+   "name": "last_message_id",
+   "type": "string"
+  },
+  {
+   "name": "last_bot_message",
+   "type": "string"
+  },
+  {
+   "name": "expires_at",
+   "type": "date"
+  },
+  {
+   "name": "updated_at",
+   "type": "date"
+  }
+ ],
+ "df_orders": [
+  {
+   "name": "order_id",
+   "type": "string"
+  },
+  {
+   "name": "created_at",
+   "type": "date"
+  },
+  {
+   "name": "customer_phone",
+   "type": "string"
+  },
+  {
+   "name": "customer_name",
+   "type": "string"
+  },
+  {
+   "name": "wa_id",
+   "type": "string"
+  },
+  {
+   "name": "latitude",
+   "type": "number"
+  },
+  {
+   "name": "longitude",
+   "type": "number"
+  },
+  {
+   "name": "map_link",
+   "type": "string"
+  },
+  {
+   "name": "address_text",
+   "type": "string"
+  },
+  {
+   "name": "items_json",
+   "type": "string"
+  },
+  {
+   "name": "items_text",
+   "type": "string"
+  },
+  {
+   "name": "total_items",
+   "type": "number"
+  },
+  {
+   "name": "subtotal",
+   "type": "number"
+  },
+  {
+   "name": "delivery_fee",
+   "type": "number"
+  },
+  {
+   "name": "total",
+   "type": "number"
+  },
+  {
+   "name": "payment_mode",
+   "type": "string"
+  },
+  {
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "name": "accepted_by",
+   "type": "string"
+  },
+  {
+   "name": "notes",
+   "type": "string"
+  },
+  {
+   "name": "version",
+   "type": "number"
+  }
+ ],
+ "df_handoffs": [
+  {
+   "name": "handoff_id",
+   "type": "string"
+  },
+  {
+   "name": "customer_phone",
+   "type": "string"
+  },
+  {
+   "name": "customer_name",
+   "type": "string"
+  },
+  {
+   "name": "opened_at",
+   "type": "date"
+  },
+  {
+   "name": "last_message_at",
+   "type": "date"
+  },
+  {
+   "name": "last_message_text",
+   "type": "string"
+  },
+  {
+   "name": "status",
+   "type": "string"
+  },
+  {
+   "name": "closed_at",
+   "type": "date"
+  }
+ ],
+ "df_events": [
+  {
+   "name": "event_id",
+   "type": "string"
+  },
+  {
+   "name": "ts",
+   "type": "date"
+  },
+  {
+   "name": "level",
+   "type": "string"
+  },
+  {
+   "name": "actor",
+   "type": "string"
+  },
+  {
+   "name": "action",
+   "type": "string"
+  },
+  {
+   "name": "detail",
+   "type": "string"
+  },
+  {
+   "name": "ref_id",
+   "type": "string"
+  }
+ ],
+ "df_login_otp": [
+  {
+   "name": "phone",
+   "type": "string"
+  },
+  {
+   "name": "code",
+   "type": "string"
+  },
+  {
+   "name": "expires_at",
+   "type": "number"
+  },
+  {
+   "name": "used",
+   "type": "boolean"
+  },
+  {
+   "name": "attempts",
+   "type": "number"
+  },
+  {
+   "name": "created_at",
+   "type": "date"
+  }
+ ]
+}

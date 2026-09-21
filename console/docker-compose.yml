@@ -1,0 +1,25 @@
+services:
+  dailyfresh-console:
+    build: .
+    container_name: dailyfresh-console
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    # Bound to loopback: Traefik terminates TLS and proxies to it, so the port
+    # is never reachable from outside the host.
+    ports:
+      - "127.0.0.1:8082:8082"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dailyfresh.rule=Host(`dailyfresh.aflatus.com`)"
+      - "traefik.http.routers.dailyfresh.entrypoints=websecure"
+      - "traefik.http.routers.dailyfresh.tls.certresolver=letsencrypt"
+      - "traefik.http.services.dailyfresh.loadbalancer.server.port=8082"
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
+    name: n8n_default
