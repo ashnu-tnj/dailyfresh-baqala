@@ -35,7 +35,7 @@ All four live on the console container, so they share the domain and certificate
 
 | Meta field | URL | State |
 |---|---|---|
-| Embedded Signup | `https://dailyfresh.aflatus.com/connect` | page live; needs `META_CONFIG_ID` |
+| Embedded Signup | `https://dailyfresh.aflatus.com/connect` | live — branded page that hands off to Meta's hosted flow (`config_id 1617780349756737`, featureType `whatsapp_business_app_onboarding`, i.e. Coexistence) |
 | Valid OAuth Redirect URI | `https://dailyfresh.aflatus.com/connect/callback` | saved, and Meta's own validator says *"This is a valid redirect URI for this application"* |
 | Deauthorize callback | `https://dailyfresh.aflatus.com/deauthorize` | saved |
 | Data Deletion Request | `https://dailyfresh.aflatus.com/datadeletion` | saved (callback), and the Basic-settings instructions URL points at the same page |
@@ -55,8 +55,16 @@ restart. Check with:
 curl -s https://dailyfresh.aflatus.com/meta/health
 ```
 
-Still to do: create an Embedded Signup **configuration** (Facebook Login for
-Business → Configurations) and put its id in `META_CONFIG_ID`.
+**Embedded Signup uses Meta's hosted landing page.** `/connect` keeps our own
+explanation and then hands off, rather than driving the JS SDK ourselves — no SDK
+to load, nothing for a popup blocker to eat, and it is the path Meta supports.
+The JS SDK version is still in the code as a fallback if `META_HOSTED_SIGNUP_URL`
+is ever unset. Meta returns the exchange code to `/connect/callback`.
+
+⚠️ **The code is recorded but not yet exchanged for a business token.** That
+exchange needs `META_APP_SECRET`, and then the token has to be written into
+`df_config` along with the shop's `phone_number_id` and `waba_id`. Until that is
+built, onboarding a real shop still ends with a manual step.
 
 ## Live now
 
