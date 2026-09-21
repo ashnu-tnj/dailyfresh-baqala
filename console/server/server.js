@@ -27,6 +27,7 @@ const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || 'https://dailyfresh.afla
 const META_APP_ID = process.env.META_APP_ID || '';
 const META_APP_SECRET = process.env.META_APP_SECRET || '';
 const META_CONFIG_ID = process.env.META_CONFIG_ID || '';
+const META_HOSTED_SIGNUP_URL = process.env.META_HOSTED_SIGNUP_URL || '';
 const GRAPH_VERSION = process.env.GRAPH_VERSION || 'v21.0';
 
 const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY || '';
@@ -260,7 +261,7 @@ app.use((BASE_PATH || '') + '/api', api);
 app.use(BASE_PATH || '/', metaRoutes({
   appId: META_APP_ID, appSecret: META_APP_SECRET, configId: META_CONFIG_ID,
   publicBaseUrl: PUBLIC_BASE_URL + (BASE_PATH || ''), dataDir: DATA_DIR,
-  graphVersion: GRAPH_VERSION
+  graphVersion: GRAPH_VERSION, hostedSignupUrl: META_HOSTED_SIGNUP_URL
 }));
 
 // ---------------------------------------------------------------- static

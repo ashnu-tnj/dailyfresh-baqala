@@ -69,6 +69,10 @@ module.exports = function metaRoutes(opts) {
   const APP_ID = opts.appId || '';
   const APP_SECRET = opts.appSecret || '';
   const CONFIG_ID = opts.configId || '';
+  // Meta will host the signup flow itself. Preferred over driving the JS SDK
+  // ourselves: no SDK to load, no popup blockers, and it is the path Meta
+  // supports. It returns the code to our redirect_uri as a normal query param.
+  const HOSTED_SIGNUP = opts.hostedSignupUrl || '';
   const BASE = (opts.publicBaseUrl || '').replace(/\/+$/, '');
   const DATA_DIR = opts.dataDir;
   const GRAPH_VERSION = opts.graphVersion || 'v21.0';
@@ -91,6 +95,24 @@ module.exports = function metaRoutes(opts) {
 
   // ---------------------------------------------------------- embedded signup
   router.get('/connect', (req, res) => {
+    if (HOSTED_SIGNUP) {
+      return res.type('html').send(page('Connect', `
+      <h1>Connect your WhatsApp number</h1>
+      <p>This links your WhatsApp Business number to DailyFresh so the ordering
+         assistant can reply to your customers. You keep using WhatsApp on your
+         phone exactly as you do now — your existing chats stay where they are.</p>
+      <div class="note"><p class="small muted">Have ready: the Facebook account that
+        manages your business, and the phone you use for customers. Meta will ask you
+        to confirm that number.</p></div>
+      <p><a class="btn" href="${HOSTED_SIGNUP}">Continue to Meta</a></p>
+      <h2>What we get</h2>
+      <ul class="small muted">
+        <li>Permission to send and receive WhatsApp messages for your business</li>
+        <li>Your WhatsApp Business account and phone number IDs</li>
+        <li>Nothing from your personal Facebook profile</li>
+      </ul>
+      <p class="small muted">Meta runs the next screens. You will come back here when it is done.</p>`));
+    }
     const ready = APP_ID && CONFIG_ID;
     const body = ready ? `
       <h1>Connect your WhatsApp number</h1>
@@ -257,7 +279,8 @@ module.exports = function metaRoutes(opts) {
   router.get('/meta/health', (req, res) => res.json({
     ok: true,
     signed_request_verification: APP_SECRET ? 'enabled' : 'DISABLED - META_APP_SECRET not set',
-    embedded_signup: (APP_ID && CONFIG_ID) ? 'configured' : 'not configured',
+    embedded_signup: HOSTED_SIGNUP ? 'meta-hosted'
+      : (APP_ID && CONFIG_ID) ? 'js-sdk' : 'not configured',
     urls: {
       embedded_signup: BASE + '/connect',
       redirect_uri: BASE + '/connect/callback',
