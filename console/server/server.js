@@ -12,6 +12,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const webpush = require('web-push');
+const metaRoutes = require('./meta');
 
 const PORT = Number(process.env.PORT || 8082);
 const CONSOLE_API = (process.env.CONSOLE_API_URL || '').replace(/\/+$/, '');
@@ -21,6 +22,12 @@ const SESSION_SECRET = process.env.SESSION_SECRET || '';
 const SESSION_DAYS = Number(process.env.SESSION_DAYS || 30);
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const BASE_PATH = (process.env.BASE_PATH || '').replace(/\/+$/, '');
+
+const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || 'https://dailyfresh.aflatus.com').replace(/\/+$/, '');
+const META_APP_ID = process.env.META_APP_ID || '';
+const META_APP_SECRET = process.env.META_APP_SECRET || '';
+const META_CONFIG_ID = process.env.META_CONFIG_ID || '';
+const GRAPH_VERSION = process.env.GRAPH_VERSION || 'v21.0';
 
 const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY || '';
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
@@ -248,6 +255,14 @@ api.post('/test-push', auth, async (req, res) => {
 
 app.use((BASE_PATH || '') + '/api', api);
 
+// Public Meta endpoints. Mounted ahead of the static handler and SPA fallback so
+// the catch-all cannot swallow them.
+app.use(BASE_PATH || '/', metaRoutes({
+  appId: META_APP_ID, appSecret: META_APP_SECRET, configId: META_CONFIG_ID,
+  publicBaseUrl: PUBLIC_BASE_URL + (BASE_PATH || ''), dataDir: DATA_DIR,
+  graphVersion: GRAPH_VERSION
+}));
+
 // ---------------------------------------------------------------- static
 const WEB = path.join(__dirname, '..', 'web');
 // index.html is read per request so a redeploy does not need a restart to show.
@@ -268,4 +283,7 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('  console api : %s', CONSOLE_API);
   console.log('  base path   : %s', BASE_PATH || '(root)');
   console.log('  push        : %s', pushReady ? 'enabled' : 'DISABLED (no VAPID keys)');
+  console.log('  meta urls   : %s/connect | /connect/callback | /deauthorize | /datadeletion', PUBLIC_BASE_URL);
+  console.log('  signed_request verification: %s',
+    META_APP_SECRET ? 'enabled' : 'DISABLED (set META_APP_SECRET)');
 });
