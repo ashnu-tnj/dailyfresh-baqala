@@ -29,6 +29,35 @@ repo not reachable - keeping the copy already on disk
 Give the container a way to read the repo (see Step 2) or the deployed code
 silently stays on whatever was last cloned.
 
+## Meta app URLs (configured 2026-09-21)
+
+All four live on the console container, so they share the domain and certificate.
+
+| Meta field | URL | State |
+|---|---|---|
+| Embedded Signup | `https://dailyfresh.aflatus.com/connect` | page live; needs `META_CONFIG_ID` |
+| Valid OAuth Redirect URI | `https://dailyfresh.aflatus.com/connect/callback` | saved, and Meta's own validator says *"This is a valid redirect URI for this application"* |
+| Deauthorize callback | `https://dailyfresh.aflatus.com/deauthorize` | saved |
+| Data Deletion Request | `https://dailyfresh.aflatus.com/datadeletion` | saved (callback), and the Basic-settings instructions URL points at the same page |
+
+Also set: **Login with the JavaScript SDK = Yes** and **Allowed Domains for the
+JavaScript SDK = `https://dailyfresh.aflatus.com/`**. Embedded Signup will not
+run without both.
+
+⚠️ **`META_APP_SECRET` is not set, so `signed_request` verification is DISABLED
+and both POST callbacks reject every request.** That is fail-closed rather than
+fail-open, but it means the callbacks are not functional until the secret is in.
+It is on the app's Basic Settings behind *Show* (Meta asks for your password, so
+it cannot be read automatically). Set it with the other container variables and
+restart. Check with:
+
+```bash
+curl -s https://dailyfresh.aflatus.com/meta/health
+```
+
+Still to do: create an Embedded Signup **configuration** (Facebook Login for
+Business → Configurations) and put its id in `META_CONFIG_ID`.
+
 ## Live now
 
 | | |
