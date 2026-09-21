@@ -1,5 +1,44 @@
 # Deploying the DailyFresh console
 
+## How it is actually deployed (learned the hard way, 2026-09-21)
+
+Three things differ from what the plan assumed:
+
+1. **The Hostinger Docker API cannot build from a git context.** A compose with
+   `build: https://github.com/...#main:console` returns *success* in 12 seconds
+   and creates no container, with no build logs. Only `image:` works. So the
+   container runs stock `node:20-alpine` and clones the repo at start-up.
+2. **Traefik's certresolver here is `mytlschallenge`, not `letsencrypt`.** With
+   the wrong name Traefik still routes (http 301 to https) but serves its own
+   self-signed cert, so the site looks broken in a way that has nothing to do
+   with DNS. The name comes from n8n's official Traefik compose, which is what
+   this Hostinger template ships.
+3. **The container is on the `n8n_default` network** and is routed purely by
+   labels - it publishes no ports.
+
+The start command clones into `/app/src/repo` when the repo is reachable and
+otherwise keeps the copy already on disk, so a restart never takes the console
+down just because the repo is private. The log line tells you which happened:
+
+```
+source updated from git
+repo not reachable - keeping the copy already on disk
+```
+
+**Consequence: with the repo private, a restart will not pick up new commits.**
+Give the container a way to read the repo (see Step 2) or the deployed code
+silently stays on whatever was last cloned.
+
+## Live now
+
+| | |
+|---|---|
+| Console | https://dailyfresh.aflatus.com |
+| Compose project | `dailyfresh-console` on VM 1047573 |
+| Source on disk | `/docker/dailyfresh-console/src/repo` |
+| Push subscriptions | `/docker/dailyfresh-console/data` (bind-mounted, survives rebuilds) |
+
+
 Target: `https://dailyfresh.aflatus.com`, a container on VPS **1047573**
 (`72.60.203.152`) behind the existing Traefik, on port **8082**.
 
