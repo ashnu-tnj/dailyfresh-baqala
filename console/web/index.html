@@ -117,6 +117,12 @@
           placeholder="Hello {{1}}, your order {{2}} is out for delivery and will reach you shortly."></textarea>
         <p class="muted small">Use {{1}}, {{2}} for the parts that change.</p>
 
+        <label for="t-examples">Example values</label>
+        <input id="t-examples" type="text" maxlength="200" placeholder="Ashfaaq, BQ-20260921-001">
+        <p class="muted small">One per blank, comma separated. WhatsApp shows these
+          to its reviewer instead of {{1}} — a template without them is rejected
+          as INVALID_FORMAT.</p>
+
         <label for="t-footer">Footer <span class="muted small">optional</span></label>
         <input id="t-footer" type="text" maxlength="60" placeholder="DailyFresh">
 

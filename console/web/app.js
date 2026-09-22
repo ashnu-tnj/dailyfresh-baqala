@@ -366,6 +366,7 @@ $('#template-form').addEventListener('submit', async e => {
         language: $('#t-language').value,
         header_text: $('#t-header').value,
         body_text: $('#t-body').value,
+        examples: $('#t-examples').value.split(',').map(x => x.trim()).filter(Boolean),
         footer_text: $('#t-footer').value,
         buttons: $('#t-buttons').value.split(',').map(x => x.trim()).filter(Boolean)
       })

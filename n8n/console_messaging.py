@@ -176,16 +176,60 @@ if (body_text.length > 1024) return [{ json: { fail: 'the body is longer than 10
 
 const header = String(b.header_text || '').trim().slice(0, 60);
 const footer = String(b.footer_text || '').trim().slice(0, 60);
+
+// Meta's format rules for placeholders, all of which come back as the single
+// unhelpful rejection reason INVALID_FORMAT hours later rather than as an error
+// on create:
+//   - they must run 1..n with nothing skipped
+//   - the body may not open or close on one
+//   - every one needs a sample value, or a reviewer sees "Hello {{1}}"
+function placeholders(text) {
+  const found = (text.match(/\{\{\s*(\d+)\s*\}\}/g) || [])
+    .map(function (m) { return parseInt(m.replace(/[^0-9]/g, ''), 10); });
+  return found;
+}
+const used = placeholders(body_text);
+const n = used.length ? Math.max.apply(null, used) : 0;
+for (var i = 1; i <= n; i++) {
+  if (used.indexOf(i) < 0) {
+    return [{ json: { fail: 'the message skips {{' + i + '}} - number the blanks 1, 2, 3 with none missing' } }];
+  }
+}
+if (n > 0) {
+  if (/^\s*\{\{\s*\d+\s*\}\}/.test(body_text)) {
+    return [{ json: { fail: 'the message cannot start with a blank - put a word before {{1}}' } }];
+  }
+  if (/\{\{\s*\d+\s*\}\}\s*$/.test(body_text)) {
+    return [{ json: { fail: 'the message cannot end with a blank - put a word after the last one' } }];
+  }
+}
+
+// Samples typed by staff, padded out if they gave fewer than the message needs.
+const given = (Array.isArray(b.examples) ? b.examples : [])
+  .map(function (x) { return String(x == null ? '' : x).trim(); }).filter(Boolean);
+const samples = [];
+for (var j = 0; j < n; j++) {
+  samples.push(given[j] || ('Sample ' + (j + 1)));
+}
+
 const components = [];
-if (header) components.push({ type: 'HEADER', format: 'TEXT', text: header });
-components.push({ type: 'BODY', text: body_text });
+if (header) {
+  const hc = { type: 'HEADER', format: 'TEXT', text: header };
+  const hn = placeholders(header).length;
+  if (hn) hc.example = { header_text: ['Sample'] };
+  components.push(hc);
+}
+const bodyComponent = { type: 'BODY', text: body_text };
+// body_text is an array of one row: one full set of values for the message.
+if (n) bodyComponent.example = { body_text: [samples] };
+components.push(bodyComponent);
 if (footer) components.push({ type: 'FOOTER', text: footer });
 
 // Quick replies, not URLs: tapping a quick reply sends an inbound message and
 // reopens the 24-hour window. A URL button does not.
 const buttons = (Array.isArray(b.buttons) ? b.buttons : [])
-  .map(x => String(x == null ? '' : x).trim()).filter(Boolean).slice(0, 3)
-  .map(t => ({ type: 'QUICK_REPLY', text: t.slice(0, 20) }));
+  .map(function (x) { return String(x == null ? '' : x).trim(); }).filter(Boolean).slice(0, 3)
+  .map(function (t) { return { type: 'QUICK_REPLY', text: t.slice(0, 20) }; });
 if (buttons.length) components.push({ type: 'BUTTONS', buttons: buttons });
 
 const v = cfg.graph_version || 'v21.0';

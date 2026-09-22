@@ -224,7 +224,7 @@ api.post('/templates', auth, async (req, res) => {
     const r = await callConsoleApi('template_create', {
       name: b.name, category: b.category, language: b.language,
       header_text: b.header_text, body_text: b.body_text,
-      footer_text: b.footer_text, buttons: b.buttons
+      footer_text: b.footer_text, buttons: b.buttons, examples: b.examples
     });
     res.status(r.body && r.body.ok ? 200 : 400).json(r.body);
   } catch (e) { res.status(502).json({ error: 'could not reach the shop service' }); }
