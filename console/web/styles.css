@@ -33,6 +33,13 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 1.25rem 0; }
 .stack > * + * { margin-top: .85rem; }
 .centred { display: grid; place-items: center; min-height: 100dvh; padding: 1rem; }
 
+/* Any author `display` rule outranks the browser's own [hidden]{display:none},
+   so an element with a display of its own stays on screen however many times
+   the script sets .hidden = true. The login card did exactly that and sat on
+   top of the signed-in app. Every panel here is toggled through `hidden`, so
+   this is declared once, globally, rather than per element. */
+[hidden] { display: none !important; }
+
 /* ---------------------------------------------------------------- login */
 .card {
   background: var(--card); border: 1px solid var(--line);
