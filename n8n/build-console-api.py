@@ -18,6 +18,7 @@ import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wfkit import (Builder, IF, CODE, WEBHOOK, RESPOND, HTTP, DATATABLE, SWITCH,
                    cond_str, cond_bool, dt_get, dt_upsert, respond_json)
+from console_onboard import add_onboard
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BUILD = os.path.join(HERE, "build")
@@ -66,6 +67,7 @@ b.node("Route Action", SWITCH,
            {"outputKey": "update", "conditions": cond_str("={{ $json.action }}", "equals", "update"), "renameOutput": True},
            {"outputKey": "login_request", "conditions": cond_str("={{ $json.action }}", "equals", "login_request"), "renameOutput": True},
            {"outputKey": "login_verify", "conditions": cond_str("={{ $json.action }}", "equals", "login_verify"), "renameOutput": True},
+           {"outputKey": "onboard", "conditions": cond_str("={{ $json.action }}", "equals", "onboard"), "renameOutput": True},
        ]}, "options": {"fallbackOutput": "extra"}}, 200, 400)
 b.node("Respond 400", RESPOND, respond_json('={{ JSON.stringify({ok:false,error:"unknown action"}) }}', 400), 420, 900)
 
@@ -332,7 +334,8 @@ b.link("Read Code", "Check Code")
 b.link("Check Code", "Save Attempt")
 b.link("Save Attempt", "Respond Verify")
 
-b.link("Route Action", "Respond 400", 4)
+add_onboard(b, 4)
+b.link("Route Action", "Respond 400", 5)
 
 if __name__ == "__main__":
     orphans = b.check("Console Webhook")

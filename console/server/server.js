@@ -261,7 +261,11 @@ app.use((BASE_PATH || '') + '/api', api);
 app.use(BASE_PATH || '/', metaRoutes({
   appId: META_APP_ID, appSecret: META_APP_SECRET, configId: META_CONFIG_ID,
   publicBaseUrl: PUBLIC_BASE_URL + (BASE_PATH || ''), dataDir: DATA_DIR,
-  graphVersion: GRAPH_VERSION, hostedSignupUrl: META_HOSTED_SIGNUP_URL
+  graphVersion: GRAPH_VERSION, hostedSignupUrl: META_HOSTED_SIGNUP_URL,
+  onboard: async (code) => {
+    const r = await callConsoleApi('onboard', { code: code });
+    return r.body || { ok: false, error: 'no response from the shop service' };
+  }
 }));
 
 // ---------------------------------------------------------------- static

@@ -76,6 +76,9 @@ module.exports = function metaRoutes(opts) {
   const BASE = (opts.publicBaseUrl || '').replace(/\/+$/, '');
   const DATA_DIR = opts.dataDir;
   const GRAPH_VERSION = opts.graphVersion || 'v21.0';
+  // Hands the signup code to n8n, which owns the app secret and does the
+  // exchange. The console never sees a token.
+  const onboard = typeof opts.onboard === 'function' ? opts.onboard : null;
   const LOG = path.join(DATA_DIR, 'meta-callbacks.json');
 
   const router = express.Router();
@@ -176,19 +179,43 @@ module.exports = function metaRoutes(opts) {
   // ---------------------------------------------------------- redirect URI
   // Registered with Meta as the OAuth Redirect URI. Embedded Signup returns its
   // code over postMessage, so a browser landing here is the fallback path.
-  router.all('/connect/callback', (req, res) => {
+  router.all('/connect/callback', async (req, res) => {
     const code = req.query.code || (req.body && req.body.code) || '';
     const error = req.query.error_description || req.query.error || '';
-    if (code) record('oauth_code', { received: true, length: String(code).length });
 
-    if (req.method === 'POST') return res.json({ ok: !!code });
+    let result = null;
+    if (code && onboard) {
+      try {
+        result = await onboard(String(code));
+      } catch (e) {
+        result = { ok: false, error: 'could not reach the shop service' };
+      }
+      // The code itself is never written down - only what came of it.
+      record('onboard', result && result.ok
+        ? { ok: true, waba_id: result.waba_id, phone_number_id: result.phone_number_id,
+            number: result.number }
+        : { ok: false, error: (result && result.error) || 'unknown' });
+    } else if (code) {
+      record('oauth_code', { received: true, exchanged: false });
+    }
+
+    if (req.method === 'POST') return res.json(result || { ok: !!code });
+    const failed = result && result.ok === false;
     const body = error ? `
       <h1>Connection was not completed</h1>
       <p class="muted">${String(error).replace(/[<>&]/g, '')}</p>
+      <p><a class="btn" href="../connect">Try again</a></p>` : failed ? `
+      <h1>Almost there</h1>
+      <p>We received your approval but could not finish setting the number up:</p>
+      <p class="muted">${String(result.error || '').replace(/[<>&]/g, '')}</p>
+      <p class="small muted">Nothing is lost. Try again, or email
+         <a href="mailto:info@aflatus.com">info@aflatus.com</a> and we will finish it for you.</p>
       <p><a class="btn" href="../connect">Try again</a></p>` : code ? `
       <h1>Thank you — your number is connected</h1>
-      <p>We have what we need. Our team will confirm once your assistant is live,
-         usually the same day.</p>
+      ${result && result.number ? '<p class="muted">Connected: <strong>' +
+        String(result.number).replace(/[<>&]/g, '') + '</strong></p>' : ''}
+      <p>Your ordering assistant is set up and will start replying to customers on
+         this number.</p>
       <p class="muted small">You can close this page.</p>` : `
       <h1>Nothing to confirm here</h1>
       <p class="muted">This page is the return address for WhatsApp signup. Start
