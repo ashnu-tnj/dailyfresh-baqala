@@ -41,11 +41,13 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 1.25rem 0; }
 .narrow { max-width: 380px; }
 .brand { color: var(--green-dark); font-size: 1.5rem; letter-spacing: -.01em; }
 label { display: block; font-weight: 600; margin: 1rem 0 .35rem; }
-input[type=tel], input[type=text], input[type=number], input[type=search] {
+input[type=tel], input[type=text], input[type=number], input[type=search],
+textarea, select {
   width: 100%; min-height: var(--tap); padding: .6rem .75rem;
   border: 1px solid var(--line); border-radius: 10px; background: #fff;
-  font-size: 1rem; color: var(--ink);
+  font-size: 1rem; color: var(--ink); font-family: inherit;
 }
+textarea { min-height: 0; resize: vertical; line-height: 1.45; }
 input:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
 #code { letter-spacing: .4em; text-align: center; font-size: 1.4rem; }
 
@@ -160,3 +162,19 @@ button { font: inherit; cursor: pointer; border-radius: 10px; }
   .secondary, .chip, .actions button, .actions a { background: #121a14; color: var(--ink); }
   .toast { background: #0b0f0c; }
 }
+
+/* ---------------------------------------------------- replying to a chat */
+.reply { display: grid; grid-template-columns: 1fr auto; gap: .5rem; margin: .75rem 0 .25rem; }
+.reply textarea { min-height: 44px; }
+.reply button {
+  align-self: end; min-height: 44px; padding: 0 1rem; border: 1px solid var(--green);
+  background: var(--green); color: #fff; font-weight: 600;
+}
+.reply button:disabled { background: var(--muted); border-color: var(--muted); cursor: progress; }
+
+/* ---------------------------------------------------------- templates */
+.status-pill.is-ok { background: var(--green-tint); color: var(--green-dark); }
+.status-pill.is-wait { background: #fff3cd; color: #7a5b00; }
+.status-pill.is-bad { background: #fdecea; color: var(--danger); }
+.error-text { color: var(--danger); }
+#template-form { border-bottom: 1px solid var(--line); padding-bottom: 1.25rem; }

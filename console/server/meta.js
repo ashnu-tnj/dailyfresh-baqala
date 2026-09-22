@@ -263,6 +263,57 @@ module.exports = function metaRoutes(opts) {
        Business settings, or email <a href="mailto:info@aflatus.com">info@aflatus.com</a>
        and we will do it for you.</p>`)));
 
+  // ---------------------------------------------------------------- terms
+  // Meta requires a Terms of Service URL before App Review. It has to be a real
+  // page describing this service, not a link to the parent company's homepage.
+  router.get('/terms', (req, res) => res.type('html').send(page('Terms of service', `
+    <h1>Terms of service</h1>
+    <p class="muted small">Last updated 22 September 2026</p>
+
+    <p>DailyFresh is a WhatsApp ordering assistant operated by <strong>AFLATUS OPC
+       PVT LTD</strong>. Shops use it to take orders from their customers on
+       WhatsApp. These terms cover both: the shop that connects its number, and
+       the customer who messages that number.</p>
+
+    <h2>For shops</h2>
+    <ul>
+      <li>You connect your own WhatsApp Business number and remain its owner. You
+          may disconnect it at any time from your Meta Business settings.</li>
+      <li>You are responsible for what you sell, the prices you publish and the
+          orders you accept. DailyFresh carries the messages; it is not a party
+          to the sale.</li>
+      <li>You agree to follow the
+          <a href="https://business.whatsapp.com/policy">WhatsApp Business Messaging Policy</a>
+          and to message only customers who have contacted you or opted in.</li>
+      <li>We may suspend the service for non-payment, or where use of it would
+          breach WhatsApp's policies.</li>
+    </ul>
+
+    <h2>For customers ordering from a shop</h2>
+    <ul>
+      <li>Messaging the shop's number starts an ordering conversation. You can ask
+          for a person at any time, and you can stop at any time.</li>
+      <li>Orders are placed with the shop, not with us. Payment, delivery, refunds
+          and complaints are the shop's responsibility.</li>
+      <li>Prices shown in the chat are the shop's and can change.</li>
+    </ul>
+
+    <h2>Data</h2>
+    <p>What we hold and how to have it deleted is set out in our
+       <a href="/datadeletion">data deletion page</a> and our
+       <a href="https://www.aflatus.com/privacypolicy/">privacy policy</a>. We do not
+       sell personal data and we do not use conversations for advertising.</p>
+
+    <h2>Availability and liability</h2>
+    <p>The service is provided as is. WhatsApp is operated by Meta and we cannot
+       guarantee its availability. To the extent the law allows, our liability is
+       limited to the fees paid for the service in the previous three months.</p>
+
+    <h2>Contact</h2>
+    <p>AFLATUS OPC PVT LTD — <a href="mailto:info@aflatus.com">info@aflatus.com</a>.
+       Questions about these terms, or about a specific order, can be sent there and
+       we will pass order questions to the shop concerned.</p>`)));
+
   // ---------------------------------------------------------- data deletion
   router.post('/datadeletion', (req, res) => {
     const data = verifySignedRequest((req.body || {}).signed_request, APP_SECRET);
@@ -330,7 +381,8 @@ module.exports = function metaRoutes(opts) {
       embedded_signup: BASE + '/connect',
       redirect_uri: BASE + '/connect/callback',
       deauthorize: BASE + '/deauthorize',
-      data_deletion: BASE + '/datadeletion'
+      data_deletion: BASE + '/datadeletion',
+      terms_of_service: BASE + '/terms'
     }
   }));
 

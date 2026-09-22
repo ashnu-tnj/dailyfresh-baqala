@@ -8,6 +8,10 @@ credentials and can only do the four things below:
   update         order status | item price/stock/listing | a config key | close a handoff
   login_request  send a 6-digit code over WhatsApp, owner number only
   login_verify   check that code
+  onboard        turn an Embedded Signup code into a connected number
+  wa_send        staff reply to a customer, sent from the dashboard
+  templates      list the message templates on the account
+  template_create  submit a new template for WhatsApp's approval
 
 Writes are read-merge-upsert rather than a bare upsert: a price-only edit must
 not blank the item's name.
@@ -19,6 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wfkit import (Builder, IF, CODE, WEBHOOK, RESPOND, HTTP, DATATABLE, SWITCH,
                    cond_str, cond_bool, dt_get, dt_upsert, respond_json)
 from console_onboard import add_onboard
+from console_messaging import add_wa_send, add_templates
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BUILD = os.path.join(HERE, "build")
@@ -68,6 +73,9 @@ b.node("Route Action", SWITCH,
            {"outputKey": "login_request", "conditions": cond_str("={{ $json.action }}", "equals", "login_request"), "renameOutput": True},
            {"outputKey": "login_verify", "conditions": cond_str("={{ $json.action }}", "equals", "login_verify"), "renameOutput": True},
            {"outputKey": "onboard", "conditions": cond_str("={{ $json.action }}", "equals", "onboard"), "renameOutput": True},
+           {"outputKey": "wa_send", "conditions": cond_str("={{ $json.action }}", "equals", "wa_send"), "renameOutput": True},
+           {"outputKey": "templates", "conditions": cond_str("={{ $json.action }}", "equals", "templates"), "renameOutput": True},
+           {"outputKey": "template_create", "conditions": cond_str("={{ $json.action }}", "equals", "template_create"), "renameOutput": True},
        ]}, "options": {"fallbackOutput": "extra"}}, 200, 400)
 b.node("Respond 400", RESPOND, respond_json('={{ JSON.stringify({ok:false,error:"unknown action"}) }}', 400), 420, 900)
 
@@ -335,7 +343,9 @@ b.link("Check Code", "Save Attempt")
 b.link("Save Attempt", "Respond Verify")
 
 add_onboard(b, 4)
-b.link("Route Action", "Respond 400", 5)
+add_wa_send(b, 5)
+add_templates(b, 6, 7)
+b.link("Route Action", "Respond 400", 8)
 
 if __name__ == "__main__":
     orphans = b.check("Console Webhook")

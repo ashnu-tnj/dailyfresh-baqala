@@ -195,6 +195,36 @@ api.post('/update', auth, async (req, res) => {
   } catch (e) { res.status(502).json({ error: 'could not reach the shop service' }); }
 });
 
+// ------------------------------------------------------- staff WhatsApp
+// Replying and template management both run through n8n, which holds the
+// access token. Nothing here ever touches Graph directly.
+api.post('/wa-send', auth, async (req, res) => {
+  const b = req.body || {};
+  try {
+    const r = await callConsoleApi('wa_send', { phone: b.phone, text: b.text, by: req.phone });
+    res.status(r.body && r.body.ok ? 200 : 400).json(r.body);
+  } catch (e) { res.status(502).json({ error: 'could not reach the shop service' }); }
+});
+
+api.get('/templates', auth, async (req, res) => {
+  try {
+    const r = await callConsoleApi('templates');
+    res.status(r.body && r.body.ok ? 200 : 400).json(r.body);
+  } catch (e) { res.status(502).json({ error: 'could not reach the shop service' }); }
+});
+
+api.post('/templates', auth, async (req, res) => {
+  const b = req.body || {};
+  try {
+    const r = await callConsoleApi('template_create', {
+      name: b.name, category: b.category, language: b.language,
+      header_text: b.header_text, body_text: b.body_text,
+      footer_text: b.footer_text, buttons: b.buttons
+    });
+    res.status(r.body && r.body.ok ? 200 : 400).json(r.body);
+  } catch (e) { res.status(502).json({ error: 'could not reach the shop service' }); }
+});
+
 // ---------------------------------------------------------------- push
 api.post('/subscribe', auth, (req, res) => {
   const sub = (req.body || {}).subscription;

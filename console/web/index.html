@@ -50,6 +50,7 @@
     <button class="tab is-active" role="tab" data-tab="orders">Orders <span id="badge-orders" class="badge" hidden></span></button>
     <button class="tab" role="tab" data-tab="chats">Chats <span id="badge-chats" class="badge" hidden></span></button>
     <button class="tab" role="tab" data-tab="prices">Prices</button>
+    <button class="tab" role="tab" data-tab="templates">Templates</button>
     <button class="tab" role="tab" data-tab="settings">Settings</button>
   </nav>
 
@@ -66,7 +67,8 @@
 
     <section id="panel-chats" class="panel" hidden>
       <p class="muted small pad">Customers who asked to talk to a person. The bot is
-        silent with them until they tap <em>Back to ordering</em>.</p>
+        silent with them until they tap <em>Back to ordering</em>. Type below to
+        reply on WhatsApp without leaving this page.</p>
       <div id="chats" class="list"></div>
     </section>
 
@@ -77,6 +79,59 @@
           hold until the next sync.</p>
       </div>
       <div id="prices" class="list"></div>
+    </section>
+
+    <section id="panel-templates" class="panel" hidden>
+      <div class="pad">
+        <p class="muted small">Templates are the only way to message a customer more
+          than 24 hours after they last wrote. WhatsApp reviews each one, usually
+          within a few minutes.</p>
+        <button id="new-template" class="secondary" type="button">New template</button>
+      </div>
+
+      <form id="template-form" class="pad stack" hidden autocomplete="off">
+        <label for="t-name">Name</label>
+        <input id="t-name" type="text" placeholder="order_out_for_delivery" maxlength="60" required>
+        <p class="muted small">Lowercase letters, numbers and underscores.</p>
+
+        <label for="t-category">Category</label>
+        <select id="t-category">
+          <option value="UTILITY">Utility — about an order they placed</option>
+          <option value="MARKETING">Marketing — offers and price lists</option>
+        </select>
+
+        <label for="t-language">Language</label>
+        <select id="t-language">
+          <option value="en_US">English</option>
+          <option value="en_GB">English (UK)</option>
+          <option value="ar">Arabic</option>
+          <option value="hi">Hindi</option>
+          <option value="ml">Malayalam</option>
+        </select>
+
+        <label for="t-header">Heading <span class="muted small">optional</span></label>
+        <input id="t-header" type="text" maxlength="60" placeholder="Your order is on its way">
+
+        <label for="t-body">Message</label>
+        <textarea id="t-body" rows="4" maxlength="1024" required
+          placeholder="Hello {{1}}, your order {{2}} is out for delivery and will reach you shortly."></textarea>
+        <p class="muted small">Use {{1}}, {{2}} for the parts that change.</p>
+
+        <label for="t-footer">Footer <span class="muted small">optional</span></label>
+        <input id="t-footer" type="text" maxlength="60" placeholder="DailyFresh">
+
+        <label for="t-buttons">Quick reply buttons <span class="muted small">optional</span></label>
+        <input id="t-buttons" type="text" maxlength="70" placeholder="Order again, Talk to us">
+        <p class="muted small">Comma separated, up to 3. Tapping one reopens the
+          24-hour window, so the customer can be answered normally afterwards.</p>
+
+        <div class="row">
+          <button id="submit-template" class="primary" type="submit">Send for approval</button>
+          <button id="cancel-template" class="link" type="button">Cancel</button>
+        </div>
+      </form>
+
+      <div id="templates" class="list"></div>
     </section>
 
     <section id="panel-settings" class="panel" hidden>

@@ -211,9 +211,16 @@ function renderChats() {
     return '<article class="item is-new">' +
       '<div class="row between"><h3>' + esc(h.customer_name || h.customer_phone || 'Customer') + '</h3>' +
       '<span class="meta">' + esc(whenText(h.last_message_at || h.opened_at)) + '</span></div>' +
+      '<p class="meta">' + esc(h.customer_phone || '') + '</p>' +
       '<p class="items-text">' + esc(h.last_message_text || '') + '</p>' +
+      '<div class="reply">' +
+      '<textarea rows="2" data-reply-to="' + esc(digits) + '" maxlength="1024" ' +
+      'placeholder="Write a reply…" aria-label="Reply to ' +
+      esc(h.customer_name || 'customer') + '"></textarea>' +
+      '<button class="go" data-send="' + esc(digits) + '">Send</button>' +
+      '</div>' +
       '<div class="actions">' +
-      '<a class="go" href="https://wa.me/' + esc(digits) + '" target="_blank" rel="noopener">Reply on WhatsApp</a>' +
+      '<a href="https://wa.me/' + esc(digits) + '" target="_blank" rel="noopener">Open in WhatsApp</a>' +
       '<button data-handoff="' + esc(h.handoff_id) + '">Mark handled</button>' +
       '</div></article>';
   }).join('');
@@ -249,9 +256,12 @@ document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => {
     TAB = btn.dataset.tab;
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('is-active', b === btn));
-    ['orders', 'chats', 'prices', 'settings'].forEach(name => {
+    ['orders', 'chats', 'prices', 'templates', 'settings'].forEach(name => {
       $('#panel-' + name).hidden = name !== TAB;
     });
+    // Templates come from Graph, not from the state payload, so they are
+    // fetched the first time the tab is opened.
+    if (TAB === 'templates' && TEMPLATES === null) loadTemplates();
   });
 });
 
@@ -271,11 +281,103 @@ $('#orders').addEventListener('click', e => {
          'Order ' + btn.dataset.status);
 });
 
-$('#chats').addEventListener('click', e => {
+$('#chats').addEventListener('click', async e => {
+  const send = e.target.closest('button[data-send]');
+  if (send) {
+    const box = $('#chats').querySelector('textarea[data-reply-to="' + send.dataset.send + '"]');
+    const text = box ? box.value.trim() : '';
+    if (!text) return toast('Nothing to send', true);
+    send.disabled = true;
+    try {
+      await req('api/wa-send', {
+        method: 'POST',
+        body: JSON.stringify({ phone: send.dataset.send, text: text })
+      });
+      // Clear it here rather than on the next load: a re-render would wipe a
+      // half-typed reply in another card.
+      if (box) box.value = '';
+      toast('Sent on WhatsApp');
+    } catch (err) {
+      toast(err.message, true);
+    }
+    send.disabled = false;
+    return;
+  }
   const btn = e.target.closest('button[data-handoff]');
   if (!btn) return;
   btn.disabled = true;
   update({ target: 'handoff', handoff_id: btn.dataset.handoff }, 'Marked handled');
+});
+
+// ---------------------------------------------------------------- templates
+let TEMPLATES = null;
+
+async function loadTemplates() {
+  const box = $('#templates');
+  box.innerHTML = '<p class="empty">Loading…</p>';
+  try {
+    const r = await req('api/templates');
+    TEMPLATES = r.templates || [];
+    renderTemplates();
+  } catch (err) {
+    box.innerHTML = '<p class="empty">' + esc(err.message) + '</p>';
+  }
+}
+
+function renderTemplates() {
+  const box = $('#templates');
+  if (!TEMPLATES || !TEMPLATES.length) {
+    box.innerHTML = '<p class="empty">No templates yet.</p>';
+    return;
+  }
+  box.innerHTML = TEMPLATES.map(t => {
+    const state = String(t.status || '').toUpperCase();
+    const cls = state === 'APPROVED' ? 'ok' : state === 'REJECTED' ? 'bad' : 'wait';
+    return '<article class="item">' +
+      '<div class="row between"><h3>' + esc(t.name) + '</h3>' +
+      '<span class="status-pill is-' + cls + '">' + esc(state || 'UNKNOWN') + '</span></div>' +
+      '<p class="meta">' + esc(t.category || '') + ' · ' + esc(t.language || '') + '</p>' +
+      '<p class="items-text">' + esc(t.body || '') + '</p>' +
+      (t.buttons && t.buttons.length
+        ? '<p class="meta">Buttons: ' + esc(t.buttons.join(' · ')) + '</p>' : '') +
+      (t.rejected_reason
+        ? '<p class="meta error-text">Rejected: ' + esc(t.rejected_reason) + '</p>' : '') +
+      '</article>';
+  }).join('');
+}
+
+$('#new-template').addEventListener('click', () => {
+  const form = $('#template-form');
+  form.hidden = !form.hidden;
+  if (!form.hidden) $('#t-name').focus();
+});
+$('#cancel-template').addEventListener('click', () => { $('#template-form').hidden = true; });
+
+$('#template-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('#submit-template');
+  btn.disabled = true;
+  try {
+    const r = await req('api/templates', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: $('#t-name').value,
+        category: $('#t-category').value,
+        language: $('#t-language').value,
+        header_text: $('#t-header').value,
+        body_text: $('#t-body').value,
+        footer_text: $('#t-footer').value,
+        buttons: $('#t-buttons').value.split(',').map(x => x.trim()).filter(Boolean)
+      })
+    });
+    toast('Sent to WhatsApp — status ' + (r.status || 'PENDING'));
+    $('#template-form').reset();
+    $('#template-form').hidden = true;
+    await loadTemplates();
+  } catch (err) {
+    toast(err.message, true);
+  }
+  btn.disabled = false;
 });
 
 $('#prices').addEventListener('change', e => {
