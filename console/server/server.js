@@ -312,7 +312,11 @@ function sendIndex(req, res) {
   res.type('html').send(html);
 }
 app.get((BASE_PATH || '') + '/', sendIndex);
-app.use(BASE_PATH || '/', express.static(WEB, { index: false, maxAge: '1h' }));
+// maxAge 0 rather than an hour: these files are the app itself, and a stale copy
+// is indistinguishable from a broken deploy - a CSS fix sat unseen behind an
+// hour of max-age once already. ETags still make the revalidation a 304, so the
+// cost is one conditional request per file, not a re-download.
+app.use(BASE_PATH || '/', express.static(WEB, { index: false, maxAge: 0, etag: true }));
 app.get('*', (req, res, next) => {
   if (req.path.indexOf('/api/') >= 0) return next();
   sendIndex(req, res);
