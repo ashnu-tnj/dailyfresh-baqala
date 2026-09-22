@@ -44,16 +44,18 @@ Also set: **Login with the JavaScript SDK = Yes** and **Allowed Domains for the
 JavaScript SDK = `https://dailyfresh.aflatus.com/`**. Embedded Signup will not
 run without both.
 
-⚠️ **`META_APP_SECRET` is not set, so `signed_request` verification is DISABLED
-and both POST callbacks reject every request.** That is fail-closed rather than
-fail-open, but it means the callbacks are not functional until the secret is in.
-It is on the app's Basic Settings behind *Show* (Meta asks for your password, so
-it cannot be read automatically). Set it with the other container variables and
-restart. Check with:
+`META_APP_SECRET` is set, so `signed_request` verification is **enabled** and
+tested in production: a correctly signed callback returns 200 and a tampered one
+returns 400. Check any time with:
 
 ```bash
 curl -s https://dailyfresh.aflatus.com/meta/health
+# signed_request_verification: enabled | embedded_signup: meta-hosted
 ```
+
+The app secret lives in two places on purpose: the container has it to verify
+`signed_request`, and `df_config.meta_app_secret` has it so n8n can do the code
+exchange. n8n is the only one that ever handles a token.
 
 **Embedded Signup uses Meta's hosted landing page.** `/connect` keeps our own
 explanation and then hands off, rather than driving the JS SDK ourselves — no SDK
@@ -61,10 +63,20 @@ to load, nothing for a popup blocker to eat, and it is the path Meta supports.
 The JS SDK version is still in the code as a fallback if `META_HOSTED_SIGNUP_URL`
 is ever unset. Meta returns the exchange code to `/connect/callback`.
 
-⚠️ **The code is recorded but not yet exchanged for a business token.** That
-exchange needs `META_APP_SECRET`, and then the token has to be written into
-`df_config` along with the shop's `phone_number_id` and `waba_id`. Until that is
-built, onboarding a real shop still ends with a manual step.
+**Onboarding is end to end.** `/connect/callback` hands the code to the Console
+API's `onboard` action, which:
+
+1. swaps the code for a business token (app secret never leaves n8n),
+2. asks `debug_token` which WhatsApp Business Account the token is scoped to,
+3. reads that account's phone number,
+4. **subscribes this app to that WABA's webhooks** — skip this and the bot looks
+   healthy and receives nothing,
+5. writes `access_token`, `waba_id` and `phone_number_id` into `df_config`.
+
+Failures are reported to the shop in plain words. Verified against Meta with a
+deliberately bad code: *"That signup link was already used or has expired."*
+Coexistence commonly reports no phone number until the owner finishes on their
+handset, and that case says exactly that.
 
 ## Live now
 
