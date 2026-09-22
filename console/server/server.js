@@ -88,6 +88,11 @@ function parseCookies(header) {
   return out;
 }
 function auth(req, res, next) {
+  // Demo mode: allow testing without login
+  if (process.env.DEMO_MODE === 'true') {
+    req.phone = process.env.DEMO_PHONE || '+971502605763';
+    return next();
+  }
   const s = readSession(parseCookies(req.headers.cookie).df_session);
   if (!s) return res.status(401).json({ error: 'not signed in' });
   req.phone = s.phone;
@@ -121,7 +126,7 @@ api.get('/health', (req, res) => res.json({
 
 api.get('/config', (req, res) => res.json({
   vapidPublicKey: pushReady ? VAPID_PUBLIC : null,
-  signedIn: !!readSession(parseCookies(req.headers.cookie).df_session)
+  signedIn: process.env.DEMO_MODE === 'true' || !!readSession(parseCookies(req.headers.cookie).df_session)
 }));
 
 // ---------------------------------------------------------------- login
