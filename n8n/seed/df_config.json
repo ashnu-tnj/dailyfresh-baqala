@@ -1,34 +1,155 @@
 {
   "_comment": "Seed rows for df_config. Values marked TO-CONFIRM are placeholders that must be replaced with Baqala's real figures before any demo to the client.",
   "rows": [
-    { "config_key": "business_name",       "value": "Baqala",              "notes": "Shown in every greeting" },
-    { "config_key": "currency",            "value": "AED",                 "notes": "" },
-    { "config_key": "order_prefix",        "value": "BQ",                  "notes": "Order ids look like BQ-20260921-143055-001" },
-    { "config_key": "phone_number_id",     "value": "",                    "notes": "Phase 0: Meta Cloud API test number id" },
-    { "config_key": "waba_id",             "value": "",                    "notes": "Phase 0" },
-    { "config_key": "access_token",        "value": "",                    "notes": "Phase 0: System User token, expiry Never" },
-    { "config_key": "token_expires_at",    "value": "",                    "notes": "Set once on the live Coexistence token" },
-    { "config_key": "verify_token",        "value": "dailyfresh-baqala-verify", "notes": "Must match the Meta webhook config" },
-    { "config_key": "open_days",           "value": "Mon,Tue,Wed,Thu,Fri,Sat,Sun", "notes": "TO-CONFIRM with Baqala" },
-    { "config_key": "open_time",           "value": "08:00",               "notes": "TO-CONFIRM" },
-    { "config_key": "close_time",          "value": "22:00",               "notes": "TO-CONFIRM" },
-    { "config_key": "timezone_offset_min", "value": "240",                 "notes": "UAE, UTC+4" },
-    { "config_key": "shop_lat",            "value": "25.3105",             "notes": "TO-CONFIRM - approximate Sharjah Industrial Area 17" },
-    { "config_key": "shop_lng",            "value": "55.4200",             "notes": "TO-CONFIRM - approximate Sharjah Industrial Area 17" },
-    { "config_key": "delivery_radius_km",  "value": "15",                  "notes": "TO-CONFIRM. Straight-line, not drive time" },
-    { "config_key": "delivery_fee",        "value": "5",                   "notes": "TO-CONFIRM. Editable from the console" },
-    { "config_key": "free_delivery_over",  "value": "100",                 "notes": "TO-CONFIRM. 0 disables" },
-    { "config_key": "min_order_value",     "value": "30",                  "notes": "TO-CONFIRM" },
-    { "config_key": "max_qty",             "value": "50",                  "notes": "Per line guard" },
-    { "config_key": "session_ttl_minutes", "value": "30",                  "notes": "Idle timeout before the chat restarts" },
-    { "config_key": "accepting_orders",    "value": "true",                "notes": "Console pause switch" },
-    { "config_key": "support_phone",       "value": "+971505290671",       "notes": "Baqala's own number" },
-    { "config_key": "delivery_eta",        "value": "same day",            "notes": "TO-CONFIRM. Shown on order confirmation" },
-    { "config_key": "closed_message",      "value": "We are closed right now. Our team is here {open_time} to {close_time}, and you can still place an order for the next delivery slot.", "notes": "" },
-    { "config_key": "paused_message",      "value": "We have paused new orders for a short while. Please try again soon, or tap Talk to Staff.", "notes": "" },
-    { "config_key": "too_far_message",     "value": "Sorry, that address is about {km} km away and we deliver within {radius} km. You can share a different location if you have one nearby.", "notes": "" },
-    { "config_key": "llm_enabled",         "value": "true",                "notes": "Kill switch for Ollama normalisation" },
-    { "config_key": "llm_model",           "value": "llama3.2:1b",         "notes": "" },
-    { "config_key": "llm_url",             "value": "http://ollama:11434", "notes": "Docker network name, reachable from n8n" }
+    {
+      "config_key": "business_name",
+      "value": "Baqala",
+      "notes": "Shown in every greeting"
+    },
+    {
+      "config_key": "currency",
+      "value": "AED",
+      "notes": ""
+    },
+    {
+      "config_key": "order_prefix",
+      "value": "BQ",
+      "notes": "Order ids look like BQ-20260921-143055-001"
+    },
+    {
+      "config_key": "phone_number_id",
+      "value": "",
+      "notes": "Phase 0: Meta Cloud API test number id"
+    },
+    {
+      "config_key": "waba_id",
+      "value": "",
+      "notes": "Phase 0"
+    },
+    {
+      "config_key": "access_token",
+      "value": "",
+      "notes": "Phase 0: System User token, expiry Never"
+    },
+    {
+      "config_key": "token_expires_at",
+      "value": "",
+      "notes": "Set once on the live Coexistence token"
+    },
+    {
+      "config_key": "verify_token",
+      "value": "dailyfresh-baqala-verify",
+      "notes": "Must match the Meta webhook config"
+    },
+    {
+      "config_key": "open_days",
+      "value": "Mon,Tue,Wed,Thu,Fri,Sat,Sun",
+      "notes": "TO-CONFIRM with Baqala"
+    },
+    {
+      "config_key": "open_time",
+      "value": "08:00",
+      "notes": "TO-CONFIRM"
+    },
+    {
+      "config_key": "close_time",
+      "value": "22:00",
+      "notes": "TO-CONFIRM"
+    },
+    {
+      "config_key": "timezone_offset_min",
+      "value": "240",
+      "notes": "UAE, UTC+4"
+    },
+    {
+      "config_key": "shop_lat",
+      "value": "25.3105",
+      "notes": "TO-CONFIRM - approximate Sharjah Industrial Area 17"
+    },
+    {
+      "config_key": "shop_lng",
+      "value": "55.4200",
+      "notes": "TO-CONFIRM - approximate Sharjah Industrial Area 17"
+    },
+    {
+      "config_key": "delivery_radius_km",
+      "value": "15",
+      "notes": "TO-CONFIRM. Straight-line, not drive time"
+    },
+    {
+      "config_key": "delivery_fee",
+      "value": "5",
+      "notes": "TO-CONFIRM. Editable from the console"
+    },
+    {
+      "config_key": "free_delivery_over",
+      "value": "100",
+      "notes": "TO-CONFIRM. 0 disables"
+    },
+    {
+      "config_key": "min_order_value",
+      "value": "30",
+      "notes": "TO-CONFIRM"
+    },
+    {
+      "config_key": "max_qty",
+      "value": "50",
+      "notes": "Per line guard"
+    },
+    {
+      "config_key": "session_ttl_minutes",
+      "value": "30",
+      "notes": "Idle timeout before the chat restarts"
+    },
+    {
+      "config_key": "accepting_orders",
+      "value": "true",
+      "notes": "Console pause switch"
+    },
+    {
+      "config_key": "support_phone",
+      "value": "+971505290671",
+      "notes": "Baqala's own number"
+    },
+    {
+      "config_key": "owner_phone",
+      "value": "+971502605763",
+      "notes": "Shop owner's number for console login (demo: +971502605763)"
+    },
+    {
+      "config_key": "delivery_eta",
+      "value": "same day",
+      "notes": "TO-CONFIRM. Shown on order confirmation"
+    },
+    {
+      "config_key": "closed_message",
+      "value": "We are closed right now. Our team is here {open_time} to {close_time}, and you can still place an order for the next delivery slot.",
+      "notes": ""
+    },
+    {
+      "config_key": "paused_message",
+      "value": "We have paused new orders for a short while. Please try again soon, or tap Talk to Staff.",
+      "notes": ""
+    },
+    {
+      "config_key": "too_far_message",
+      "value": "Sorry, that address is about {km} km away and we deliver within {radius} km. You can share a different location if you have one nearby.",
+      "notes": ""
+    },
+    {
+      "config_key": "llm_enabled",
+      "value": "true",
+      "notes": "Kill switch for Ollama normalisation"
+    },
+    {
+      "config_key": "llm_model",
+      "value": "llama3.2:1b",
+      "notes": ""
+    },
+    {
+      "config_key": "llm_url",
+      "value": "http://ollama:11434",
+      "notes": "Docker network name, reachable from n8n"
+    }
   ]
 }

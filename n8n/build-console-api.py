@@ -243,7 +243,19 @@ b.node("Allowed?", IF, {"conditions": cond_bool("={{ $json.allowed }}"), "option
 b.node("Respond Login Denied", RESPOND,
        respond_json('={{ JSON.stringify({ok:false,error:"not the registered number"}) }}', 403), 840, 1260)
 
-b.node("Store Code", DATATABLE, dt_upsert("df_login_otp", "phone"), 840, 1040, executeOnce=True)
+# Make Login Code also carries the Graph url, the token and the shop name, which
+# are not columns of df_login_otp. An autoMapInputData upsert tries to write every
+# field it is handed, so the row has to be cut down to the table's own columns
+# first - otherwise the node throws "unknown column name 'allowed'", no Respond
+# node is reached, and the caller gets a non-JSON error back.
+OTP_ROW_JS = r"""
+const c = $('Make Login Code').first().json;
+return [{ json: { phone: c.phone, code: c.code, expires_at: c.expires_at,
+                  used: c.used, attempts: c.attempts, created_at: c.created_at } }];
+"""
+b.node("Login OTP Row", CODE, {"jsCode": OTP_ROW_JS}, 840, 1040, executeOnce=True)
+b.node("Store Code", DATATABLE, dt_upsert("df_login_otp", "phone"), 1040, 1160,
+       executeOnce=True, onError="continueRegularOutput")
 
 SEND_CODE_JS = r"""
 const c = $('Make Login Code').first().json;
@@ -331,8 +343,9 @@ b.link("Build Update", "Route Target")
 
 b.link("Route Action", "Make Login Code", 2)
 b.link("Make Login Code", "Allowed?")
-b.link("Allowed?", "Store Code", 0)
+b.link("Allowed?", "Login OTP Row", 0)
 b.link("Allowed?", "Respond Login Denied", 1)
+b.link("Login OTP Row", "Store Code")
 b.link("Store Code", "Build Code Message")
 b.link("Build Code Message", "Send Code")
 b.link("Send Code", "Respond Login Sent")
