@@ -38,6 +38,24 @@ function verifySignedRequest(signed, appSecret) {
   } catch (e) { return null; }
 }
 
+// Meta's failures arrive as a JSON blob wrapped in an HTTP status, often doubly
+// escaped. The shop owner needs the sentence inside it, not the envelope; the
+// full text stays in the callback log.
+function humanError(raw) {
+  const text = String(raw == null ? '' : raw).split('\\').join('');
+  let msg = text;
+  const key = '"message":"';
+  const i = text.indexOf(key);
+  if (i >= 0) {
+    const start = i + key.length;
+    const end = text.indexOf('"', start);
+    if (end > start) msg = text.slice(start, end);
+  }
+  if (/expired|already been used|verification code format/i.test(msg)) {
+    msg = 'That signup link was already used or has expired. Please start again.';
+  }
+  return msg.replace(/[<>&]/g, '').slice(0, 200) || 'Something went wrong.';
+}
 const page = (title, bodyHtml) => `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -207,7 +225,7 @@ module.exports = function metaRoutes(opts) {
       <p><a class="btn" href="../connect">Try again</a></p>` : failed ? `
       <h1>Almost there</h1>
       <p>We received your approval but could not finish setting the number up:</p>
-      <p class="muted">${String(result.error || '').replace(/[<>&]/g, '')}</p>
+      <p class="muted">${humanError(result.error)}</p>
       <p class="small muted">Nothing is lost. Try again, or email
          <a href="mailto:info@aflatus.com">info@aflatus.com</a> and we will finish it for you.</p>
       <p><a class="btn" href="../connect">Try again</a></p>` : code ? `
