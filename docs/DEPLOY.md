@@ -39,6 +39,7 @@ All four live on the console container, so they share the domain and certificate
 | Valid OAuth Redirect URI | `https://dailyfresh.aflatus.com/connect/callback` | saved, and Meta's own validator says *"This is a valid redirect URI for this application"* |
 | Deauthorize callback | `https://dailyfresh.aflatus.com/deauthorize` | saved |
 | Data Deletion Request | `https://dailyfresh.aflatus.com/datadeletion` | saved (callback), and the Basic-settings instructions URL points at the same page |
+| Terms of Service | `https://dailyfresh.aflatus.com/terms` | **live, but not yet saved in the app** — App Review needs it, see `APP-REVIEW.md` |
 
 Also set: **Login with the JavaScript SDK = Yes** and **Allowed Domains for the
 JavaScript SDK = `https://dailyfresh.aflatus.com/`**. Embedded Signup will not
@@ -91,7 +92,9 @@ handset, and that case says exactly that.
 Target: `https://dailyfresh.aflatus.com`, a container on VPS **1047573**
 (`72.60.203.152`) behind the existing Traefik, on port **8082**.
 
-Repo: `https://github.com/ashnu-tnj/dailyfresh-baqala` (**private**).
+Repo: `https://github.com/ashnu-tnj/dailyfresh-baqala` (**public** for now, at the
+owner's instruction; when it goes private again the container can no longer
+re-clone and will keep running the copy already on disk).
 
 Two things must happen before it can serve traffic. Step 1 is yours either way.
 
