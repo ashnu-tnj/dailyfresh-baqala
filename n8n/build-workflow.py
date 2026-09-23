@@ -491,7 +491,7 @@ return [{ json: {
   token: e.notify_token,
   payload: {
     title: (h.customer_name || 'A customer') + ' wants to chat',
-    body: h.last_message_text || 'Tapped Talk to Staff',
+    body: h.last_message_text || 'Asked to chat with the team',
     tag: 'handoff-' + (h.customer_phone || ''),
     requireInteraction: true,
     url: './'

@@ -485,10 +485,11 @@ function screenGreeting(cfg, open) {
       [{ id: 'staff', title: 'Talk to Staff' }], cfg.business_name);
   }
   return mButtons(
-    'Welcome to ' + cfg.business_name + '! Fresh fruit, vegetables and groceries delivered to your door.\n\nTap Order Now to start, or Talk to Staff if you would rather chat with us.',
-    [{ id: 'order_now', title: 'Order Now' },
-     { id: 'prices', title: 'Today’s Prices' },
-     { id: 'staff', title: 'Talk to Staff' }],
+    'Welcome to ' + cfg.business_name + '! Fresh fruit, vegetables and groceries delivered to your door.\n\n' +
+    'Tap Self Order Now to pick from today’s list.\n\n' +
+    'At any point you can send \"talk to staff\" and one of our team will take over the chat.',
+    [{ id: 'order_now', title: 'Self Order Now' },
+     { id: 'staff', title: 'Chat with us' }],
     cfg.business_name);
 }
 
@@ -607,6 +608,14 @@ var HELP_TEXT = 'Here is what I can do:\n\n' +
   '• STAFF puts you through to a person\n\n' +
   'Payment is cash on delivery.';
 
+// The welcome message promises that \"talk to staff\" works at any point, so the
+// phrase has to be caught wherever it is sent, not just the bare keywords.
+function wantsHuman(u) {
+  if (!u) return false;
+  if (u === 'STAFF' || u === 'AGENT' || u === 'HUMAN' || u === 'SUPPORT') return true;
+  return /\b(TALK|SPEAK|CHAT)\b.{0,12}\b(STAFF|HUMAN|AGENT|PERSON|SOMEONE|US|YOU)\b/.test(u);
+}
+
 function runEngine(input) {
   var nowIso = input.now || new Date().toISOString();
   var now = new Date(nowIso);
@@ -627,6 +636,12 @@ function runEngine(input) {
   var upper = typed.toUpperCase().replace(/\s+/g, ' ').trim();
   var hasLoc = (inb.latitude !== undefined && inb.latitude !== null && inb.latitude !== '' &&
                 inb.longitude !== undefined && inb.longitude !== null && inb.longitude !== '');
+  // Anything the bot cannot read: voice notes, photos, files, stickers, contact
+  // cards. Reactions and system notices are deliberately excluded - nudging
+  // someone for a thumbs-up would be noise rather than help.
+  var mtype = String(inb.msg_type == null ? '' : inb.msg_type).toLowerCase();
+  var isMedia = mtype !== '' &&
+    ['text', 'interactive', 'button', 'location', 'reaction', 'system'].indexOf(mtype) < 0;
 
   function fresh() {
     return {
@@ -692,7 +707,7 @@ function runEngine(input) {
     out.customer = base;
   }
 
-  function startHandoff() {
+  function startHandoff(why) {
     S.current_step = 'human_handoff';
     out.send = mButtons(
       'No problem - I have let the ' + cfg.business_name + ' team know and someone will reply here shortly.' +
@@ -702,9 +717,9 @@ function runEngine(input) {
     out.handoff = {
       action: 'open', customer_phone: S.phone,
       customer_name: S.customer_name || S.profile_name || '',
-      last_message_text: typed || '(tapped Talk to Staff)', opened_at: nowIso, last_message_at: nowIso, status: 'open'
+      last_message_text: typed || why || '(tapped Chat with us)', opened_at: nowIso, last_message_at: nowIso, status: 'open'
     };
-    ev('handoff_start', typed || 'tap');
+    ev('handoff_start', typed || why || 'tap');
   }
 
   function handoffQuiet() {
@@ -957,9 +972,15 @@ function runEngine(input) {
   // ------------------------------------------------------------ routing
   var step = S.current_step;
 
+  // A normal exchange clears the media nudge, so a photo sent an hour later
+  // gets the same one warning rather than an instant handover.
+  if (!isMedia && pending.media_nudge) delete pending.media_nudge;
+
   // Anything that reaches a human wins over everything else.
-  if (tap === 'staff' || upper === 'STAFF' || upper === 'AGENT' || upper === 'HUMAN' || upper === 'SUPPORT') {
-    startHandoff();
+  if (tap === 'staff' || wantsHuman(upper)) {
+    // Already with a person: pass it on rather than opening a second handoff
+    // and notifying the shop twice for one conversation.
+    if (step === 'human_handoff') handoffQuiet(); else startHandoff();
   } else if (step === 'human_handoff') {
     if (tap === 'resume' || upper === 'ORDER' || upper === 'ORDER NOW' || upper === 'MENU' || upper === 'BOT' || upper === 'RESUME') {
       out.handoff = { action: 'close', customer_phone: S.phone,
@@ -969,6 +990,21 @@ function runEngine(input) {
       beginOrder();
     } else {
       handoffQuiet();
+    }
+  } else if (isMedia) {
+    if (pending.media_nudge) {
+      // Second one: they meant it. Hand over rather than repeat ourselves.
+      delete pending.media_nudge;
+      startHandoff('(sent a ' + mtype + ' - passed to a person)');
+    } else {
+      pending.media_nudge = 1;
+      out.send = mButtons(
+        'Sorry, I cannot open voice notes, photos or files.\n\n' +
+        'Ordering here is quicker anyway - tap Self Order Now and pick from today' + String.fromCharCode(8217) + 's list.\n\n' +
+        'If you would rather a person saw it, send it once more and I will pass you to our team.',
+        [{ id: 'order_now', title: 'Self Order Now' },
+         { id: 'staff', title: 'Chat with us' }]);
+      ev('media_nudge', mtype);
     }
   } else if (upper === 'HELP') {
     out.send = mButtons(HELP_TEXT, [{ id: 'order_now', title: 'Order Now' }, { id: 'staff', title: 'Talk to Staff' }]);

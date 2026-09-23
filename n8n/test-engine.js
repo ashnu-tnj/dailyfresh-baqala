@@ -42,7 +42,9 @@ Shop.prototype.send = function (phone, msg, opts) {
     phone: phone, wa_id: phone, profile_name: opts.profile || 'Ahmed',
     message_id: opts.mid || ('wamid.' + Math.random().toString(36).slice(2)),
     text: opts.tap ? '' : (msg || ''), reply_id: opts.tap ? msg : '',
-    latitude: opts.lat, longitude: opts.lng
+    latitude: opts.lat, longitude: opts.lng,
+    msg_type: opts.type || (opts.tap ? 'interactive'
+               : (opts.lat !== undefined ? 'location' : 'text'))
   };
   var r = E.runEngine({
     now: opts.now || this.now,
@@ -124,7 +126,7 @@ console.log('\n=== 1. New customer, guided tap-only order ===');
   var p = '+971500000001';
   var r = shop.send(p, 'hi');
   checkLimits('greeting', r);
-  check('greeting offers 3 buttons', btnIds(r).join(',') === 'order_now,prices,staff', btnIds(r).join(','));
+  check('greeting offers 2 buttons', btnIds(r).join(',') === 'order_now,staff', btnIds(r).join(','));
 
   r = shop.send(p, 'order_now', { tap: true });
   check('asks for location natively', r.send.kind === 'location_request', r.send.kind);
@@ -486,6 +488,78 @@ console.log('\n=== 10. Browsing via Todays Prices still needs an address ===');
     check('order carries the address', !!shop.orders[0].address_text, shop.orders[0].address_text);
     check('order carries a map link', /maps\.google\.com/.test(shop.orders[0].map_link), shop.orders[0].map_link);
   }
+})();
+
+
+console.log('\n=== 11. Reaching a person, and messages the bot cannot read ===');
+(function () {
+  var shop = new Shop();
+  var p = '+971500000911';
+
+  var r = shop.send(p, 'hi');
+  check('greeting names the escape hatch', /talk to staff/i.test(lastBody(r)), lastBody(r).slice(0, 80));
+  check('greeting button says Self Order Now',
+        ((r.send.buttons || [])[0] || {}).title === 'Self Order Now',
+        ((r.send.buttons || [])[0] || {}).title);
+  check('greeting button says Chat with us',
+        ((r.send.buttons || [])[1] || {}).title === 'Chat with us',
+        ((r.send.buttons || [])[1] || {}).title);
+
+  // Mid-order, typed in the middle of browsing.
+  r = shop.send(p, 'order_now', { tap: true });
+  r = shop.send(p, '', { lat: 25.31, lng: 55.42 });
+  r = shop.send(p, 'Villa 12, Al Nahda');
+  r = shop.send(p, 'name_profile', { tap: true });
+  r = shop.send(p, 'talk to staff');
+  check('typed "talk to staff" hands over', !!r.handoff && r.handoff.action === 'open',
+        r.handoff && r.handoff.action);
+  check('and the shop is told who it is', (r.handoff || {}).customer_phone === p,
+        (r.handoff || {}).customer_phone);
+  check('handover is the logged event', r.event.action === 'handoff_start', r.event.action);
+
+  // Already with a person: no second handoff, no second notification.
+  r = shop.send(p, 'talk to staff');
+  check('asking twice does not re-open', (r.handoff || {}).action === 'message',
+        (r.handoff || {}).action);
+  check('and the bot stays quiet', r.send === null, String(r.send));
+})();
+
+(function () {
+  var shop = new Shop();
+  var p = '+971500000912';
+  shop.send(p, 'hi');
+
+  var r = shop.send(p, '', { type: 'audio' });
+  check('a voice note is nudged, not ignored', /cannot open voice notes/i.test(lastBody(r)),
+        lastBody(r).slice(0, 60));
+  check('the nudge offers the same two buttons', btnIds(r).join(',') === 'order_now,staff',
+        btnIds(r).join(','));
+  check('nudging does not open a handoff', r.handoff === null, String(r.handoff));
+  check('the nudge is logged', r.event.action === 'media_nudge', r.event.action);
+
+  r = shop.send(p, '', { type: 'image' });
+  check('a second one hands over', (r.handoff || {}).action === 'open', (r.handoff || {}).action);
+  check('and says what was sent', /image/.test((r.handoff || {}).last_message_text || ''),
+        (r.handoff || {}).last_message_text);
+
+  // Once with a person, media just passes through silently.
+  r = shop.send(p, '', { type: 'document' });
+  check('later media reaches staff quietly', (r.handoff || {}).action === 'message',
+        (r.handoff || {}).action);
+  check('bot does not talk over the human', r.send === null, String(r.send));
+})();
+
+(function () {
+  var shop = new Shop();
+  var p = '+971500000913';
+  shop.send(p, 'hi');
+  shop.send(p, '', { type: 'audio' });
+  // A normal message in between means the next photo starts from one warning.
+  shop.send(p, 'order_now', { tap: true });
+  var r = shop.send(p, '', { type: 'audio' });
+  check('a normal reply resets the one-warning rule',
+        r.handoff === null && /cannot open voice notes/i.test(lastBody(r)),
+        String(r.handoff) + ' | ' + lastBody(r).slice(0, 40));
 })();
 
 console.log('\n--------------------------------------------------');
